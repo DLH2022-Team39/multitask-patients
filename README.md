@@ -12,6 +12,10 @@ Steps to create dataset files on Mac OS X:
     postgres -D /usr/local/var/postgres &
     /usr/local/opt/postgres/bin/createuser -s postgres
     ```
+1. Build the MIMIC-III postgresql database
+    ```
+    cd mimic-code/mimic-iii/buildmimic/postgres/ && make create-user mimic-gz datadir="../../../../data/mimic-iii-clinical-database-1.4/"
+    ```
 
 
 ## Original Paper repository README.md follows:
