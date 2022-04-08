@@ -7,8 +7,9 @@ Steps to create dataset files on Mac OS X:
     ```
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     ```
-1. Install and start postgresql
+1. Install make and postgresql. Start postgresql.
     ```
+    brew install make postgresql
     postgres -D /usr/local/var/postgres &
     /usr/local/opt/postgres/bin/createuser -s postgres
     ```
