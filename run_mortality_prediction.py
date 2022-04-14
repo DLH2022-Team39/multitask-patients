@@ -1,8 +1,8 @@
 # Import things
 from numpy.random import seed
 seed(1)
-from tensorflow import set_random_seed
-set_random_seed(2)
+# from tensorflow import set_random_seed
+# set_random_seed(2)
 
 import os
 import sys
@@ -11,16 +11,20 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import roc_auc_score
-import tensorflow as tf
-from keras.optimizers import Adam
-from keras import backend as K
+import tensorflow.compat.v1 as tf
+tf.set_random_seed(2)
+# from keras.optimizers import Adam
+from tensorflow.keras.optimizers import Adam
+# from keras import backend as K
+from tensorflow.compat.v1.keras import backend as K
 from keras.models import Sequential, load_model
 from keras.layers import Dense, Input
 from keras.callbacks import ModelCheckpoint, EarlyStopping
 from keras.models import Model
 from keras.layers.recurrent import LSTM
 
-np.set_printoptions(threshold=np.nan)
+# np.set_printoptions(threshold=np.nan)
+np.set_printoptions(threshold=sys.maxsize)
 
 INDEX_COLS = ['subject_id', 'icustay_id', 'hours_in', 'hadm_id']
 
@@ -120,7 +124,8 @@ def load_phys_data():
 
     X = pd.read_hdf(data_path + 'X.h5', 'X')
     # Y = pd.read_hdf(data_path + 'Y.h5', 'Y')
-    static = pd.DataFrame.from_csv(data_path + 'static.csv')
+    # static = pd.DataFrame.from_csv(data_path + 'static.csv')
+    static = pd.read_csv(data_path + 'static.csv')
 
     if 'subject_id' not in X.columns:
         X = X.reset_index()
@@ -155,7 +160,7 @@ def categorize_ethnicity(ethnicity):
     return ethnicity
 
 
-def make_discrete_values(mat):
+def make_discrete_values(mat_in):
     """ 
     Converts numerical values into one-hot vectors of number of z-scores 
     above/below the mean, aka physiological words (see Suresh et al 2017).
@@ -167,6 +172,9 @@ def make_discrete_values(mat):
         indicator columns signifying number of z-scores above or below the mean.
     """
 
+    # cols = ['charttime','storetime','INTIME','hours_in', 'valueuom', 'item']
+    cols = ['charttime','storetime','INTIME', 'valueuom', 'item']
+    mat = mat_in.drop(columns=cols)
     normal_dict = mat.groupby(['subject_id']).mean().mean().to_dict()
     std_dict = mat.std().to_dict()
     feature_cols = mat.columns[len(INDEX_COLS):]
@@ -191,11 +199,28 @@ def transform_vals(x, normal_dict, std_dict):
         bool: The return value. True for success, False otherwise.
     """
 
+    # print(x)
+    # print('1.0*(x - normal_dict[x.name])/std_dict[x.name]')
     x = 1.0*(x - normal_dict[x.name])/std_dict[x.name]
+    # print(x)
+    # print('x.round()')
     x = x.round()
-    x = x.clip(-4, 4)
+    # print(x)
+    # print('x.clip(-4, 4)', flush=True)
+    nas = x.isna()
     x = x.fillna(9)
+    x = x.clip(-4, 4)
+    x[nas] = None
+    # x = np.where(x<-4,-4,x)
+    # x = np.where(x>4,4,x)
+    # print(x)
+    # print('x.fillna(9)')
+    x = x.fillna(9)
+    # print(x)
+    # print('x.round(0).astype(int)')
     x = x.round(0).astype(int)
+    # print(x)
+    # print('Done.\n')
     return x
 
 
@@ -1054,7 +1079,8 @@ def load_processed_data(data_hours=24, gap_time=12):
     save_data_path = 'data/mortality_' + str(data_hours) + '/'
 
     # see if we already have the data matrices saved
-    try:
+    # try:
+    if os.path.exists(save_data_path + 'X.npy'):
         X = np.load(save_data_path + 'X.npy')
         careunits = np.load(save_data_path + 'careunits.npy')
         saps_quartile = np.load(save_data_path + 'saps_quartile.npy')
@@ -1064,7 +1090,8 @@ def load_processed_data(data_hours=24, gap_time=12):
         print('shape of X: ', X.shape)
 
     # otherwise create them
-    except Exception as e:
+    # except Exception as e:
+    else:
         data_cutoff = data_hours
         mort_cutoff = data_hours + gap_time
 
@@ -1084,7 +1111,7 @@ def load_processed_data(data_hours=24, gap_time=12):
                              'icustay_id', 'deathtime', 'dischtime']].dropna()
         deathtimes_valid = deathtimes[deathtimes.dischtime >=
                                       deathtimes.deathtime]
-        deathtimes_valid['mort_hosp_valid'] = True
+        deathtimes_valid.loc[:,'mort_hosp_valid'] = True
         cmo = pd.read_csv('data/code_status.csv')
         cmo = cmo[cmo.cmo > 0]
         cmo['timednr_chart'] = pd.to_datetime(cmo.timednr_chart)
@@ -1218,9 +1245,13 @@ if __name__ == "__main__":
     # Limit GPU usage.
     os.environ["CUDA_VISIBLE_DEVICES"] = FLAGS.gpu_num
     config = tf.ConfigProto()
-    config.gpu_options.allow_growth = True  # Don't use all GPUs
+    # config.gpu_options.allow_growth = True  # Don't use all GPUs
     config.allow_soft_placement = True  # Enable manual control
-    K.tensorflow_backend.set_session(tf.Session(config=config))
+    # K.tensorflow_backend.set_session(tf.Session(config=config))
+    K.set_session(tf.Session(config=config))
+    # # K.backend.set_session(tf.Session(config=config))
+    # tf.compat.v1.keras.backend.set_session(tf.compat.v1.Session(config=config))
+    # tf.compat.v1.keras.backend.set_session
 
     # Make folders for the results & models
     for folder in ['results', 'models', 'checkpoints']:

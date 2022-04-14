@@ -8,7 +8,8 @@ import numpy as np
 import argparse
 from keras.models import Model
 from keras.layers import Input, LSTM, RepeatVector
-from keras.optimizers import Adam
+# from keras.optimizers import Adam
+from tensorflow.keras.optimizers import Adam
 from keras.callbacks import EarlyStopping
 from run_mortality_prediction import stratified_split, load_processed_data
 from sklearn.mixture import GaussianMixture
