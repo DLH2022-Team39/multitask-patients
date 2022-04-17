@@ -160,7 +160,7 @@ def categorize_ethnicity(ethnicity):
     return ethnicity
 
 
-def make_discrete_values(mat_in):
+def make_discrete_values(mat):
     """ 
     Converts numerical values into one-hot vectors of number of z-scores 
     above/below the mean, aka physiological words (see Suresh et al 2017).
@@ -172,13 +172,10 @@ def make_discrete_values(mat_in):
         indicator columns signifying number of z-scores above or below the mean.
     """
 
-    # cols = ['charttime','storetime','INTIME','hours_in', 'valueuom', 'item']
-    cols = ['charttime','storetime','INTIME', 'valueuom', 'item']
-    mat = mat_in.drop(columns=cols)
     normal_dict = mat.groupby(['subject_id']).mean().mean().to_dict()
     std_dict = mat.std().to_dict()
     feature_cols = mat.columns[len(INDEX_COLS):]
-    print(feature_cols)
+    print(f'feature_cols = {feature_cols}')
     X_words = mat.loc[:, feature_cols].apply(
         lambda x: transform_vals(x, normal_dict, std_dict), axis=0)
     mat.loc[:, feature_cols] = X_words
@@ -199,28 +196,16 @@ def transform_vals(x, normal_dict, std_dict):
         bool: The return value. True for success, False otherwise.
     """
 
-    # print(x)
-    # print('1.0*(x - normal_dict[x.name])/std_dict[x.name]')
+    # Bug with pandas or numpy clip implementation causes this to hang
+    # without fillna
     x = 1.0*(x - normal_dict[x.name])/std_dict[x.name]
-    # print(x)
-    # print('x.round()')
     x = x.round()
-    # print(x)
-    # print('x.clip(-4, 4)', flush=True)
     nas = x.isna()
     x = x.fillna(9)
     x = x.clip(-4, 4)
     x[nas] = None
-    # x = np.where(x<-4,-4,x)
-    # x = np.where(x>4,4,x)
-    # print(x)
-    # print('x.fillna(9)')
     x = x.fillna(9)
-    # print(x)
-    # print('x.round(0).astype(int)')
     x = x.round(0).astype(int)
-    # print(x)
-    # print('Done.\n')
     return x
 
 
@@ -353,9 +338,9 @@ def get_bootstrapped_dataset(X, y, cohorts, index=0, test=False, num_bootstrap_s
     split = 'test' if test else 'val'
     try:
         pos_samples = np.load(
-            split + '_pos_bootstrap_samples_' + str(num_bootstrap_samples) + '.npy')[index]
+            split + '_pos_bootstrap_samples_' + str(num_bootstrap_samples) + '.npy', allow_pickle=True)[index]
         neg_samples = np.load(
-            split + '_neg_bootstrap_samples_' + str(num_bootstrap_samples) + '.npy')[index]
+            split + '_neg_bootstrap_samples_' + str(num_bootstrap_samples) + '.npy', allow_pickle=True)[index]
     except:
         all_pos_samples, all_neg_samples = generate_bootstrap_indices(
             X, y, split, num_bootstrap_samples)
@@ -393,10 +378,12 @@ def bootstrap_predict(X_orig, y_orig, cohorts_orig, task, model, return_everythi
 
     all_aucs = []
 
+    print(f'bootstrap_predic task: {task}')
     for i in range(num_bootstrap_samples):
         X_bootstrap_sample, y_bootstrap_sample, cohorts_bootstrap_sample = get_bootstrapped_dataset(
             X_orig, y_orig, cohorts_orig, index=i, test=test, num_bootstrap_samples=num_bootstrap_samples)
         if task != 'all':
+            # print(X_bootstrap_sample, task, cohorts_bootstrap_sample )
             X_bootstrap_sample_task = X_bootstrap_sample[cohorts_bootstrap_sample == task]
             y_bootstrap_sample_task = y_bootstrap_sample[cohorts_bootstrap_sample == task]
             cohorts_bootstrap_sample_task = cohorts_bootstrap_sample[cohorts_bootstrap_sample == task]
@@ -468,7 +455,7 @@ def create_single_task_model(n_layers, units, num_dense_shared_layers, dense_sha
     model.add(Dense(units=output_dim, activation='sigmoid'))
 
     model.compile(loss='binary_crossentropy',
-                  optimizer=Adam(lr=.0001),
+                  optimizer=Adam(learning_rate=.0001),
                   metrics=['accuracy'])
 
     return model
@@ -715,8 +702,8 @@ def run_separate_models(X_train, y_train, cohorts_train,
     current_run_params = [FLAGS.num_lstm_layers, FLAGS.lstm_layer_size,
                           FLAGS.num_dense_shared_layers, FLAGS.dense_shared_layer_size]
     try:
-        separate_model_results = np.load(fname_results)
-        separate_model_key = np.load(fname_keys)
+        separate_model_results = np.load(fname_results, allow_pickle=True)
+        separate_model_key = np.load(fname_keys, allow_pickle=True)
         separate_model_results = np.concatenate(
             (separate_model_results, np.expand_dims(cohort_aucs, 0)))
         separate_model_key = np.concatenate(
@@ -872,8 +859,8 @@ def run_global_model(X_train, y_train, cohorts_train,
                           FLAGS.num_dense_shared_layers, FLAGS.dense_shared_layer_size]
     try:
         print('appending results.')
-        global_model_results = np.load(fname_results)
-        global_model_key = np.load(fname_keys)
+        global_model_results = np.load(fname_results, allow_pickle=True)
+        global_model_key = np.load(fname_keys, allow_pickle=True)
         global_model_results = np.concatenate(
             (global_model_results, np.expand_dims(cohort_aucs, 0)))
         global_model_key = np.concatenate(
@@ -1040,8 +1027,8 @@ def run_multitask_model(X_train, y_train, cohorts_train,
                           FLAGS.dense_shared_layer_size, FLAGS.num_multi_layers, FLAGS.multi_layer_size]
 
     try:
-        multitask_model_results = np.load(fname_results)
-        multitask_model_key = np.load(fname_keys)
+        multitask_model_results = np.load(fname_results, allow_pickle=True)
+        multitask_model_key = np.load(fname_keys, allow_pickle=True)
         multitask_model_results = np.concatenate(
             (multitask_model_results, np.expand_dims(cohort_aucs, 0)))
         multitask_model_key = np.concatenate(
@@ -1081,11 +1068,11 @@ def load_processed_data(data_hours=24, gap_time=12):
     # see if we already have the data matrices saved
     # try:
     if os.path.exists(save_data_path + 'X.npy'):
-        X = np.load(save_data_path + 'X.npy')
-        careunits = np.load(save_data_path + 'careunits.npy')
-        saps_quartile = np.load(save_data_path + 'saps_quartile.npy')
-        subject_ids = np.load(save_data_path + 'subject_ids.npy')
-        Y = np.load(save_data_path + 'Y.npy')
+        X = np.load(save_data_path + 'X.npy', allow_pickle=True)
+        careunits = np.load(save_data_path + 'careunits.npy', allow_pickle=True)
+        saps_quartile = np.load(save_data_path + 'saps_quartile.npy', allow_pickle=True)
+        subject_ids = np.load(save_data_path + 'subject_ids.npy', allow_pickle=True)
+        Y = np.load(save_data_path + 'Y.npy', allow_pickle=True)
         print('Loaded data from ' + save_data_path)
         print('shape of X: ', X.shape)
 
@@ -1095,9 +1082,11 @@ def load_processed_data(data_hours=24, gap_time=12):
         data_cutoff = data_hours
         mort_cutoff = data_hours + gap_time
 
+        print('entering load_phys_data()', flush=True)
         X, static = load_phys_data()
 
         # Add SAPS Score to static matrix
+        print('adding saps score to static', flush=True)
         saps = pd.read_csv('data/saps.csv')
         ser, bins = pd.qcut(saps.sapsii, 4, retbins=True, labels=False)
         saps['sapsii_quartile'] = pd.cut(
@@ -1106,7 +1095,9 @@ def load_processed_data(data_hours=24, gap_time=12):
         static = pd.merge(static, saps, how='left', on=[
                           'subject_id', 'hadm_id', 'icustay_id'])
 
+
         # Add Mortality Outcome
+        print('adding mortality columns to static', flush=True)
         deathtimes = static[['subject_id', 'hadm_id',
                              'icustay_id', 'deathtime', 'dischtime']].dropna()
         deathtimes_valid = deathtimes[deathtimes.dischtime >=
@@ -1147,12 +1138,14 @@ def load_processed_data(data_hours=24, gap_time=12):
             static.mort_hosp_valid == False)) | (static.time_til_mort >= mort_cutoff)]
 
         # Make discrete values and cut off stay at 24 hours
+        print('entering make_discrete_values(X)', flush=True)
         X_discrete = make_discrete_values(X)
         X_discrete = X_discrete[X_discrete.hours_in < data_cutoff]
         X_discrete = X_discrete[[
             c for c in X_discrete.columns if c not in ['hadm_id', 'icustay_id']]]
 
         # Pad people whose records stop early
+        print('padding early stopped records', flush=True)
         test = X_discrete.set_index(['subject_id', 'hours_in'])
         extra_hours = test.groupby(level=0).apply(_pad_df, data_cutoff)
         extra_hours = extra_hours[extra_hours != 0].reset_index()
@@ -1163,6 +1156,7 @@ def load_processed_data(data_hours=24, gap_time=12):
                 pad_tuples.append((s, hr))
         pad_df = pd.DataFrame(0, index=pd.MultiIndex.from_tuples(
             pad_tuples, names=('subject_id', 'hours_in')), columns=test.columns)
+        print('concatting padded', flush=True)
         new_df = pd.concat([test, pad_df], axis=0)
 
         # get the static vars we want, make them discrete columns
@@ -1176,6 +1170,7 @@ def load_processed_data(data_hours=24, gap_time=12):
                                         'gender', 'age', 'ethnicity'])
 
         # merge the phys with static
+        print('merging to create X_full', flush=True)
         X_full = pd.merge(new_df.reset_index(), static_to_keep,
                           on='subject_id', how='inner')
         X_full = X_full.set_index(['subject_id', 'hours_in'])
@@ -1200,13 +1195,15 @@ def load_processed_data(data_hours=24, gap_time=12):
         X_full = X_full.loc[:, X_full.columns != 'mort_hosp_valid']
         X_full = X_full.loc[:, X_full.columns != 'sapsii_quartile']
         X_full = X_full.loc[:, X_full.columns != 'first_careunit']
+        print(X_full)
        
         feature_names = X_full.columns
         np.save('feature_names.npy', feature_names)
 
         # get the data as a np matrix of size num_examples x timesteps x features
         X_full_matrix = np.reshape(
-            X_full.as_matrix(), (len(subject_ids), data_cutoff, -1))
+            # X_full.as_matrix(), (len(subject_ids), data_cutoff, -1))
+            X_full.to_numpy(), (len(subject_ids), data_cutoff, -1))
         print("Shape of X: ")
         print(X_full_matrix.shape)
 
@@ -1225,11 +1222,14 @@ def load_processed_data(data_hours=24, gap_time=12):
 
         np.save(save_data_path + 'X.npy', X_full_matrix)
         np.save(save_data_path + 'careunits.npy',
-                np.squeeze(careunits.as_matrix(), axis=1))
+                # np.squeeze(careunits.as_matrix(), axis=1))
+                np.squeeze(careunits.to_numpy(), axis=1))
         np.save(save_data_path + 'saps_quartile.npy',
-                np.squeeze(saps_quartile.as_matrix(), axis=1))
+                # np.squeeze(saps_quartile.as_matrix(), axis=1))
+                np.squeeze(saps_quartile.to_numpy(), axis=1))
         np.save(save_data_path + 'subject_ids.npy', np.array(subject_ids))
-        np.save(save_data_path + 'Y.npy', np.squeeze(Y.as_matrix(), axis=1))
+        # np.save(save_data_path + 'Y.npy', np.squeeze(Y.as_matrix(), axis=1))
+        np.save(save_data_path + 'Y.npy', np.squeeze(Y.to_numpy(), axis=1))
 
         X = X_full_matrix
 
@@ -1247,11 +1247,7 @@ if __name__ == "__main__":
     config = tf.ConfigProto()
     # config.gpu_options.allow_growth = True  # Don't use all GPUs
     config.allow_soft_placement = True  # Enable manual control
-    # K.tensorflow_backend.set_session(tf.Session(config=config))
-    K.set_session(tf.Session(config=config))
-    # # K.backend.set_session(tf.Session(config=config))
-    # tf.compat.v1.keras.backend.set_session(tf.compat.v1.Session(config=config))
-    # tf.compat.v1.keras.backend.set_session
+    tf.compat.v1.keras.backend.set_session(tf.Session(config=config))
 
     # Make folders for the results & models
     for folder in ['results', 'models', 'checkpoints']:
@@ -1268,7 +1264,7 @@ if __name__ == "__main__":
 
     # Check that we haven't already run this configuration
     if os.path.exists(fname_keys) and not FLAGS.repeats_allowed:
-        model_key = np.load(fname_keys)
+        model_key = np.load(fname_keys, allow_pickle=True)
         current_run = [FLAGS.num_lstm_layers, FLAGS.lstm_layer_size,
                        FLAGS.num_dense_shared_layers, FLAGS.dense_shared_layer_size]
         if FLAGS.model_type == "MULTITASK":
@@ -1291,12 +1287,13 @@ if __name__ == "__main__":
     elif FLAGS.cohorts == 'saps':
         cohort_col = saps_quartile
     elif FLAGS.cohorts == 'custom':
-        cohort_col = np.load('cluster_membership/' + FLAGS.cohort_filepath)
+        cohort_col = np.load('cluster_membership/' + FLAGS.cohort_filepath, allow_pickle=True)
         cohort_col = np.array([str(c) for c in cohort_col])
 
     # Include cohort membership as an additional feature
     if FLAGS.include_cohort_as_feature:
-        cohort_col_onehot = pd.get_dummies(cohort_col).as_matrix()
+        # cohort_col_onehot = pd.get_dummies(cohort_col).as_matrix()
+        cohort_col_onehot = pd.get_dummies(cohort_col).to_numpy()
         cohort_col_onehot = np.expand_dims(cohort_col_onehot, axis=1)
         cohort_col_onehot = np.tile(cohort_col_onehot, (1, 24, 1))
         X = np.concatenate((X, cohort_col_onehot), axis=-1)

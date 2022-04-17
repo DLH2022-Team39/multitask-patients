@@ -117,7 +117,7 @@ chart_features = [
 ]
 
 
-def get_charts(nrows=10_000_000):
+def get_charts(nrows=None):
     def get_item_map():
         d_items = pd.read_csv(MIMIC_DIR + 'D_ITEMS.csv.gz')
         item_map = d_items.set_index('ITEMID')['LABEL'].to_dict()
@@ -128,15 +128,15 @@ def get_charts(nrows=10_000_000):
 
     # Read chartevents
     charts_types = {
-    "SUBJECT_ID": int,
-    "HADM_ID": int,
-    "ICUSTAY_ID": float,
-    "ITEMID": int,
-    "CGID": float,
-    "VALUE": float,
-    "VALUENUM": float,
-    "WARNING": int,
-    "ERROR": int,
+        "SUBJECT_ID": np.int32,
+        "HADM_ID": np.int32,
+        "ICUSTAY_ID": np.float32,
+        "ITEMID": np.int32,
+        "CGID": np.float32,
+        # "VALUE": float,
+        "VALUENUM": np.float32,
+        "WARNING": np.float32,
+        "ERROR": np.float32,
     }
     charts_times = ["CHARTTIME"]
     usecols = list(charts_types.keys()) + charts_times
@@ -163,6 +163,7 @@ def get_charts(nrows=10_000_000):
     
     # Drop rows corresponding to previous stays
     charts = charts.loc[charts.hours_in>0]
+    charts.hours_in = charts.hours_in.astype(np.int32)
     
     # Drop unused and reorder
     INDEX_COLS = ['subject_id', 'icustay_id', 'hours_in', 'hadm_id']
@@ -186,11 +187,11 @@ def get_charts(nrows=10_000_000):
 def get_labevents():
     # Read labevents
     labitems_types = {
-    "SUBJECT_ID": int,
-    "HADM_ID": float,
-    "ITEMID": int,
-    "VALUE": str,
-    "VALUENUM": float,
+        "SUBJECT_ID": np.int32,
+        "HADM_ID": np.float32,
+        "ITEMID": np.int32,
+        "VALUE": str,
+        "VALUENUM": np.float32,
     }
     labitems_times = ["CHARTTIME"]
     usecols = list(labitems_types.keys()) + labitems_times
@@ -218,6 +219,7 @@ def get_labevents():
 
     # Drop rows corresponding to previous stays
     labevents = labevents.loc[labevents.hours_in>0]
+    labevents.hours_in = labevents.hours_in.astype(np.int32)
 
     # Average all measurements per subject per stay per lab test per hour
     labevents = labevents.groupby(
@@ -268,7 +270,7 @@ def get_static():
     return static
 
 
-def make_X(nrows=10_000_000):
+def make_X(nrows=None):
     charts = get_charts(nrows=nrows)
     labevents = get_labevents()
 
@@ -279,6 +281,10 @@ def make_X(nrows=10_000_000):
 
     # Drop columns with all NA's and reset index
     X = X.dropna(axis=1,how='all').reset_index()
+    
+    # Convert to smaller width on some columns
+    for col in ['subject_id', 'hours_in', 'hadm_id', 'icustay_id']:
+        X[col] = X[col].astype(np.int32)
 
     # Write out
     X.to_hdf('data/X.h5', key='X', mode='w')
@@ -290,6 +296,6 @@ def make_static():
     
 
 if __name__ == "__main__":
-    make_X(nrows=1_000_000)
+    make_X(nrows=100_000_000)
     make_static()
 
