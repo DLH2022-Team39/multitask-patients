@@ -270,7 +270,7 @@ def get_static():
     return static
 
 
-def make_X(nrows=None):
+def make_X(static, nrows=None):
     charts = get_charts(nrows=nrows)
     labevents = get_labevents()
 
@@ -283,19 +283,21 @@ def make_X(nrows=None):
     X = X.dropna(axis=1,how='all').reset_index()
     
     # Convert to smaller width on some columns
-    for col in ['subject_id', 'hours_in', 'hadm_id', 'icustay_id']:
+    cols = ['subject_id', 'hours_in', 'hadm_id', 'icustay_id']
+    for col in cols:
         X[col] = X[col].astype(np.int32)
+
+    # Drop patients less than 15 years of age as stated in the paper
+    X = X.set_index(cols).join(
+            static.set_index(['subject_id','icustay_id', 'hadm_id'])['age'])
+    X = X[X.age>=15].drop(columns='age')
 
     # Write out
     X.to_hdf('data/X.h5', key='X', mode='w')
 
 
-def make_static():
+if __name__ == "__main__":
     static = get_static()
     static.to_csv('data/static.csv', index=False)
-    
-
-if __name__ == "__main__":
-    make_X(nrows=100_000_000)
-    make_static()
+    make_X(static, nrows=100_000_000)
 
