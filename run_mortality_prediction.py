@@ -674,9 +674,9 @@ def run_separate_models(X_train, y_train, cohorts_train,
         model.fit(x_train_in_task, y_train_in_task, epochs=FLAGS.epochs, batch_size=100,
                   callbacks=[checkpointer, early_stopping],
                   validation_data=(x_val_in_task, y_val_in_task))
-        print(model)
-        print(dir(model))
-        print(model.summary())
+        # print(model)
+        # print(dir(model))
+        # print(model.summary())
 
         # make validation predictions & evaluate
         preds_for_cohort = model.predict(x_val_in_task, batch_size=128)
@@ -806,9 +806,9 @@ def run_global_model(X_train, y_train, cohorts_train,
     model = create_single_task_model(FLAGS.num_lstm_layers, FLAGS.lstm_layer_size,
                                      FLAGS.num_dense_shared_layers, FLAGS.dense_shared_layer_size, X_train.shape[1:], 1)
     # print(sum(p.numel() for p in model.parameters() if p.requires_grad))
-    print(model)
-    print(dir(model))
-    print(model.summary())
+    # print(model)
+    # print(dir(model))
+    # print(model.summary())
     early_stopping = EarlyStopping(monitor='val_loss', patience=4)
     model_dir = FLAGS.experiment_name + \
         '/checkpoints/' + "_".join(model_fname_parts)
@@ -927,9 +927,9 @@ def run_multitask_model(X_train, y_train, cohorts_train,
         model_path = FLAGS.experiment_name + \
             '/models/' + "_".join(model_fname_parts)
         model = load_model(model_path)
-        print(model)
-        print(dir(model))
-        print(model.summary())
+        # print(model)
+        # print(dir(model))
+        # print(model.summary())
         y_pred = model.predict(X_test)
         
         cohort_aucs = []
@@ -995,10 +995,9 @@ def run_multitask_model(X_train, y_train, cohorts_train,
     mtl_model.save(FLAGS.experiment_name + '/models/' +
                    "_".join(model_fname_parts))
 
-    print(mtl_model)
-    print(dir(mtl_model))
-    print(mtl_model.summary())
-    sys.abort()
+    # print(mtl_model)
+    # print(dir(mtl_model))
+    # print(mtl_model.summary())
 
     cohort_aucs = []
 
