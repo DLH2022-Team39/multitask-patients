@@ -140,9 +140,12 @@ def get_charts(nrows=None):
     }
     charts_times = ["CHARTTIME"]
     usecols = list(charts_types.keys()) + charts_times
-    charts = pd.read_csv(MIMIC_DIR + 'CHARTEVENTS.csv.gz', 
-            dtype=charts_types, parse_dates=charts_times, nrows=nrows,
-            usecols=usecols)
+    # charts = pd.read_csv(MIMIC_DIR + 'CHARTEVENTS.csv.gz', 
+    #         dtype=charts_types, parse_dates=charts_times, nrows=nrows,
+    #         usecols=usecols)
+    print('pd.read_pickle chartevents ...', flush=True)
+    charts = pd.read_pickle(MIMIC_DIR + 'CHARTEVENTS_pandas.pkl')
+    print('done.')
 
     # Filter for only chart events the paper uses
     item_map = get_item_map()
@@ -272,7 +275,9 @@ def get_static():
 
 def make_X(static, nrows=None):
     charts = get_charts(nrows=nrows)
+    print('got charts')
     labevents = get_labevents()
+    print('got labevents')
 
     # Join charts and labevents dataframes on subject, hours_in
     labevents = labevents.set_index(['subject_id','hours_in','hadm_id'])
@@ -299,5 +304,6 @@ def make_X(static, nrows=None):
 if __name__ == "__main__":
     static = get_static()
     static.to_csv('data/static.csv', index=False)
-    make_X(static, nrows=100_000_000)
+    #make_X(static, nrows=100_000_000)
+    make_X(static)
 
