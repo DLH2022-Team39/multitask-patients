@@ -3,6 +3,7 @@
 ### Replication and Extension of "Learning Tasks for Multitask Learning"
 
 **Citation to the original paper**
+
 Suresh, Harini, Gong, Jen J, Guttag, John V. Learning Tasks for Multitask Learning: Heterogenous Patient Populations in the ICU. In Proceedings of the 24th ACM SIGKDD International Conference on Knowledge Discovery & Data Mining (KDD '18). Association for Computing Machinery, New York, NY, USA, 802–810. https://doi.org/10.1145/3219819.3219930
 
 **Link to the original paper’s repo (if applicable)**
@@ -65,53 +66,53 @@ python run_mortality_prediction.py
 
 *Claim 1 Results - Multi-Task Out Performs Global*
 
-|              Global		 	       |          Multi-Task	    |
-| ---   | ---    | ---   | ---   | ---     | ---    | ---   |
-|       | Paper	 | Us		 | Diff  | Paper	 | Us		  | Diff  |
-| CCU   | 0.862  | 0.800 | 0.062 | 0.861   | 0.644  | 0.217 |
-| CSRU  | 0.849  | 0.857 |-0.008 | 0.867   | 0.724  | 0.143 |
-| MICU  | 0.814  | 0.786 | 0.028 | 0.832   | 0.753  | 0.079 |
-| SICU  | 0.839  | 0.793 | 0.046 | 0.855   | 0.747  | 0.108 |
-| TSICU | 0.846  | 0.827 | 0.019 | 0.869   | 0.778  | 0.091 |
-| Macro | 0.842  | 0.828 | 0.014 | 0.857   | 0.736  | 0.121 |
-| Micro | 0.852  | 0.842 | 0.01  | 0.866   | 0.789  | 0.077 |
+|       | Global | Global | Global | Multi-Task |	Multi-Task | Multi-Task |
+| ---   | ---    | ---    | ---    |  ---       | ---        | ---        |
+|       | Paper	 | Us		  | Diff   |  Paper	    | Us		     | Diff       |
+| CCU   | 0.862  | 0.800  | 0.062  |  0.861     | 0.644      | 0.217      |
+| CSRU  | 0.849  | 0.857  |-0.008  |  0.867     | 0.724      | 0.143      |
+| MICU  | 0.814  | 0.786  | 0.028  |  0.832     | 0.753      | 0.079      |
+| SICU  | 0.839  | 0.793  | 0.046  |  0.855     | 0.747      | 0.108      |
+| TSICU | 0.846  | 0.827  | 0.019  |  0.869     | 0.778      | 0.091      |
+| Macro | 0.842  | 0.828  | 0.014  |  0.857     | 0.736      | 0.121      |
+| Micro | 0.852  | 0.842  | 0.01   |  0.866     | 0.789      | 0.077      |
 
 *Claim 2 Results - First 24 Hours of Patient's Stay by Care Unit*
 
-|              Global		 	          |          Multi	        |
-| ---   | ---    | ---      | ---   | ---    | ---    | ---   |
-|       | Paper	 | Us		    | Diff  | Paper	 | Us		  | Diff  |
-| CCU	  | 0.862	 | 0.800	  |-0.06	| 0.861	 | 0.672	| -0.19 |
-| CSRU	| 0.849	 | 0.857	  | 0.01	| 0.867	 | 0.950	|  0.08 |
-| MICU	| 0.814	 | 0.786	  |-0.03	| 0.832	 | 0.839	|  0.01 |
-| SICU	| 0.839	 | 0.793	  |-0.05	| 0.855	 | 0.860	|  0.01 |
-| TSICU | 0.846	 | 0.827	  |-0.02	| 0.869	 | 0.733	| -0.14 |
-| Macro | 0.842	 | 0.813	  |-0.03	| 0.857	 | 0.811	| -0.05 |
-| Micro | 0.852	 | 0.842	  |-0.01	| 0.866	 | 0.844	| -0.02 |
+|       | Global | Global | Global | Multi-Task |	Multi-Task | Multi-Task |
+| ---   | ---    | ---    | ---    |  ---       | ---        | ---        |
+|       | Paper	 | Us		  | Diff   | Paper	    | Us		     | Diff       |
+| CCU	  | 0.862	 | 0.800	|-0.06	 | 0.861	    | 0.672	     | -0.19      |
+| CSRU	| 0.849	 | 0.857	| 0.01	 | 0.867	    | 0.950	     |  0.08      |
+| MICU	| 0.814	 | 0.786	|-0.03	 | 0.832	    | 0.839	     |  0.01      |
+| SICU	| 0.839	 | 0.793	|-0.05	 | 0.855	    | 0.860	     |  0.01      |
+| TSICU | 0.846	 | 0.827	|-0.02	 | 0.869	    | 0.733	     | -0.14      |
+| Macro | 0.842	 | 0.813	|-0.03	 | 0.857	    | 0.811	     | -0.05      |
+| Micro | 0.852	 | 0.842	|-0.01	 | 0.866	    | 0.844	     | -0.02      |
 
 *Claim 2 Results - First 48 Hours of Patient's Stay by Care Unit*
 
-|              Global		 	          |          Multi	        |
-| ---   | ---    | ---      | ---   | ---    | ---    | ---   |
-|       | Paper	 | US		    | Diff  | Paper	 | US		  | Diff  |
-|CCU	  | 0.862	 | 0.818	  | 0.02	| 0.861  | 0.025	| -0.65 |
-|CSRU   | 0.849	 | 0.377	  |-0.48	|	0.867  | 0.741	| -0.21 |
-|MICU   | 0.814	 | 0.809	  | 0.02	|	0.832  | 0.784	| -0.05 |
-|SICU   | 0.839	 | 0.813	  | 0.02	|	0.855  | 0.671	| -0.19 |
-|TSICU  | 0.846	 | 0.698	  |-0.13	| 0.869  | 0.725	| -0.01 |
-|Macro  | 0.842	 | 0.703	  |-0.11	| 0.857  | 0.589	| -0.22 |
-|Micro  | 0.852	 | 0.806	  |-0.04	| 0.866  | 0.777	| -0.07 |
+|       | Global | Global | Global | Multi-Task |	Multi-Task | Multi-Task |
+| ---   | ---    | ---    | ---    |  ---       | ---        | ---        |
+|       | Paper	 | US		  | Diff   | Paper	    | US		     | Diff       |
+| CCU	  | 0.862	 | 0.818	| 0.02	 | 0.861      | 0.025	     | -0.65      |
+| CSRU  | 0.849	 | 0.377	|-0.48	 | 0.867      | 0.741	     | -0.21      |
+| MICU  | 0.814	 | 0.809	| 0.02	 | 0.832      | 0.784	     | -0.05      |
+| SICU  | 0.839	 | 0.813	| 0.02	 | 0.855      | 0.671	     | -0.19      |
+| TSICU | 0.846	 | 0.698	|-0.13	 | 0.869      | 0.725	     | -0.01      |
+| Macro | 0.842	 | 0.703	|-0.11	 | 0.857      | 0.589	     | -0.22      |
+| Micro | 0.852	 | 0.806	|-0.04	 | 0.866      | 0.777	     | -0.07      |
 
 *Claim 2 Results*
 
-|              Global		 	          |          Multi	        |
-| ---   | ---    | ---      | ---   | ---    | ---    | ---   |
-|       | Paper	 | US		    | Diff  | Paper	 | US		  | Diff  |
-| 0	    | 0.803	 | 0.893	  | 0.090	| 0.819	 | 0.903	| 0.010 |
-| 1	    | 0.811	 | 0.811	  | 0.000	| 0.829	 | 0.705	|-0.106 |
-| 2	    | 0.814	 | 0.902	  | 0.088	| 0.821	 | 0.841	|-0.061 |
-| mac	  | 0.809	 | 0.869	  | 0.060	| 0.823	 | 0.816	|-0.053 |
-| mic	  | 0.852	 | 0.854	  | 0.002	| 0.858	 | 0.800	|-0.054 |
+|       | Global | Global | Global | Multi-Task |	Multi-Task | Multi-Task |
+| ---   | ---    | ---    | ---    |  ---       | ---        | ---        |
+|       | Paper	 | US		  | Diff   | Paper	    | US		     | Diff       |
+| 0	    | 0.803	 | 0.893	| 0.090	 | 0.819	    | 0.903	     | 0.010      |
+| 1	    | 0.811	 | 0.811	| 0.000	 | 0.829	    | 0.705	     |-0.106      |
+| 2	    | 0.814	 | 0.902	| 0.088	 | 0.821	    | 0.841	     |-0.061      |
+| mac	  | 0.809	 | 0.869	| 0.060	 | 0.823	    | 0.816	     |-0.053      |
+| mic	  | 0.852	 | 0.854	| 0.002	 | 0.858	    | 0.800	     |-0.054      |
 
 
 
