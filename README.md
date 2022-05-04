@@ -1,11 +1,12 @@
 ## UIUC CS598 Deep Learning for Healthcare Team 39
 
-###Replication and Extension of "Learning Tasks for Multitask Learning"
+### Replication and Extension of "Learning Tasks for Multitask Learning"
 
 **Citation to the original paper**
 Suresh, Harini, Gong, Jen J, Guttag, John V. Learning Tasks for Multitask Learning: Heterogenous Patient Populations in the ICU. In Proceedings of the 24th ACM SIGKDD International Conference on Knowledge Discovery & Data Mining (KDD '18). Association for Computing Machinery, New York, NY, USA, 802–810. https://doi.org/10.1145/3219819.3219930
 
 **Link to the original paper’s repo (if applicable)**
+
 https://github.com/mit-ddig/multitask-patients
 
 **Dependencies**
@@ -41,6 +42,7 @@ python preprocess.py
 ```
 
 **Training code + command (if applicable)**
+
 Training code can be found in [generate_clusters.py](./generate_clusters.py).
 It needs to be executed via terminal/command line in the folder where this repository is cloned.
 ```
@@ -48,9 +50,11 @@ python generate_clusters.py
 ```
 
 **Evaluation code + command (if applicable)**
+
 *Is this applicable?*
 
 **Pretrained model (if applicable)**
+
 The model can be run using the code in [run_mortality_prediction.py](./run_mortality_prediction.py).
 It needs to be executed via terminal/command line in the folder where this repository is cloned.
 ```
@@ -58,7 +62,9 @@ python run_mortality_prediction.py
 ```
 
 **Table of results (no need to include additional experiments, but main reproducibility result should be included)**
+
 *Claim 1 Results - Multi-Task Out Performs Global*
+
 |              Global		 	       |          Multi-Task	    |
 | ---   | ---    | ---   | ---   | ---     | ---    | ---   |
 |       | Paper	 | Us		 | Diff  | Paper	 | Us		  | Diff  |
@@ -71,6 +77,7 @@ python run_mortality_prediction.py
 | Micro | 0.852  | 0.842 | 0.01  | 0.866   | 0.789  | 0.077 |
 
 *Claim 2 Results - First 24 Hours of Patient's Stay by Care Unit*
+
 |              Global		 	          |          Multi	        |
 | ---   | ---    | ---      | ---   | ---    | ---    | ---   |
 |       | Paper	 | Us		    | Diff  | Paper	 | Us		  | Diff  |
@@ -83,6 +90,7 @@ python run_mortality_prediction.py
 | Micro | 0.852	 | 0.842	  |-0.01	| 0.866	 | 0.844	| -0.02 |
 
 *Claim 2 Results - First 48 Hours of Patient's Stay by Care Unit*
+
 |              Global		 	          |          Multi	        |
 | ---   | ---    | ---      | ---   | ---    | ---    | ---   |
 |       | Paper	 | US		    | Diff  | Paper	 | US		  | Diff  |
@@ -95,6 +103,7 @@ python run_mortality_prediction.py
 |Micro  | 0.852	 | 0.806	  |-0.04	| 0.866  | 0.777	| -0.07 |
 
 *Claim 2 Results*
+
 |              Global		 	          |          Multi	        |
 | ---   | ---    | ---      | ---   | ---    | ---    | ---   |
 |       | Paper	 | US		    | Diff  | Paper	 | US		  | Diff  |
