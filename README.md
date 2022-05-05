@@ -1,8 +1,50 @@
-## UIUC CS598 Deep Learning for Healthcare Team 39
+## Replication and Extension of "Learning Tasks for Multitask Learning"
+**UIUC CS598 Deep Learning for Healthcare Team 39**
 
-**Replication and Extension of "Learning Tasks for Multitask Learning"**
+### Citation to original paper
 
-Steps to create dataset files on Mac OS X:
+Suresh, Harini, Gong, Jen J, Guttag, John V. Learning
+Tasks for Multitask Learning: Heterogenous Patient
+Populations in the ICU. In Proceedings of the 24th
+ACM SIGKDD International Conference on Knowl-
+edge Discovery Data Mining (KDD ’18). Associa-
+tion for Computing Machinery, New York, NY, USA,
+802–810. https://doi.org/10.1145/3219819.3219930
+
+### Link to original paper's code repo
+
+https://github.com/mit-ddig/multitask-patients
+
+### Python library dependencies
+
+os
+sys
+argparse
+pickle
+numpy
+pandas
+sklearn
+tensorflow
+keras
+
+### Data download instructions
+
+The MIMIC-III dataset is hosted on physionet: https://physionet.org/content/mimiciii/1.4/
+
+Go to the above URL, sign up for, and pass the credentialling process for access to the dataset. Download the full 6.2 GB zip file and unzip it into the `data` folder in this repository.
+
+### Preprocessing code + command (if applicable)
+
+### Training code + command (if applicable)
+
+### Evaluation code + command (if applicable)
+
+### Pretrained model (if applicable)
+
+### Table of results (no need to include additional experiments, but main reproducibility result should be included)
+
+### Steps to create dataset files on Mac OS X
+
 1. Install Homebrew 
     ```
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
