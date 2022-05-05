@@ -25,6 +25,20 @@ Dependencies to build dataset files on Mac OS X:
     /usr/local/opt/postgres/bin/createuser -s postgres
     ```
 
+Python package dependencies:
+
+```
+os
+sys
+argparse
+numpy
+pandas
+tensorflow
+keras
+sklearn
+pickle
+```
+
 **Data download instruction**
 
 Steps to create dataset files on Mac OS X:
