@@ -39,16 +39,23 @@ sklearn
 pickle
 ```
 
-**Data download instruction**
+**Data download instructions**
 
-Steps to create dataset files on Mac OS X:
+1. Go to https://physionet.org/content/mimiciii/1.4/
+1. Follow the credentialling instructions and sign up for access
+1. Download the 6.2GB zip file containing all the data and unzip to the `data` folder at the top level of this repository
 
+
+**Preprocessing code + command (if applicable)**
+
+Steps to process the dataset files on Mac OS X:
+
+1. Download the MIMIC_Extract repository from https://github.com/MLforHealth/MIMIC_Extract
 1. Build the MIMIC-III postgresql database
     ```
     cd mimic-code/mimic-iii/buildmimic/postgres/ && make create-user mimic-gz datadir="../../../../data/mimic-iii-clinical-database-1.4/"
     ```
-
-**Preprocessing code + command (if applicable)**
+1. Export the SAPSII and code_status tables to csv files and save in the `data` folder at the top level of this repository
 
 Preprocessing code can be found in [preprocess.py](./preprocess.py).
 It needs to be executed via terminal/command line in the folder where this repository is cloned.
@@ -58,15 +65,25 @@ python preprocess.py
 
 **Training code + command (if applicable)**
 
-Training code can be found in [generate_clusters.py](./generate_clusters.py).
+Training code can be found in [generate_clusters.py](./generate_clusters.py) and [run_mortality_prediction.py](./run_mortality_prediction.py).
+
 It needs to be executed via terminal/command line in the folder where this repository is cloned.
 ```
 python generate_clusters.py
+python run_mortality_prediction.py
 ```
+
+Relevant run_mortality_prediction.py command line arguments:
+    * "--model_type": "One of {'GLOBAL', MULTITASK', 'SEPARATE'}"
+    * "--cohort_filepath": "This is the filename containing the cohort membership for each example"
+    * "--data_hours": default=24, "The number of hours of data to use in making the prediction."
+
+Relevant generate_clusters.py command line arguments:
+    * "--data_hours": default=24, "The number of hours of data to use in making the prediction."
 
 **Evaluation code + command (if applicable)**
 
-*Is this applicable?*
+Evaluation code is invoked through `run_mortality_prediction.py` (see above)
 
 **Pretrained model (if applicable)**
 
