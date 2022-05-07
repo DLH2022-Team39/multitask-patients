@@ -1153,11 +1153,20 @@ def load_processed_data(data_hours=24, gap_time=12):
 
         # Make discrete values and cut off stay at 24 hours
         print('entering make_discrete_values(X)', flush=True)
+        print(f'X.shape: {X.shape}')
+        print(f'X.subject_id.nunique(): {X.subject_id.nunique()}')
         X_discrete = make_discrete_values(X)
+        print(f'X_discrete.shape: {X_discrete.shape}')
+        print(f'X_discrete.subject_id.nunique(): {X_discrete.subject_id.nunique()}')
+
+        print('entering X_discrete[X_discrete.hours_in < data_cutoff]')
         X_discrete = X_discrete[X_discrete.hours_in < data_cutoff]
         X_discrete = X_discrete[[
             c for c in X_discrete.columns if c not in ['hadm_id', 'icustay_id']]]
+        print(f'X_discrete.shape: {X_discrete.shape}')
+        print(f'X_discrete.subject_id.nunique(): {X_discrete.subject_id.nunique()}')
 
+        # exit()
         # Pad people whose records stop early
         print('padding early stopped records', flush=True)
         test = X_discrete.set_index(['subject_id', 'hours_in'])
